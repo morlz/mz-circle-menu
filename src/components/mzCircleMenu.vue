@@ -16,24 +16,24 @@
 	<div class="mainAction">
 		<div class="shadowCiecle" :style="shadowCiecleStyles"/>
 		<div class="mainCircle" :style="mainCircleStyles">
-			<item :content="menuItems" :index="menuItemIndex" v-for="menuItem, menuItemIndex in menuItems" :key="menuItemIndex" :radius="mainCircle.radius" :style="childCircleBaseStyles" />
+			<mz-circle-menu-item :content="menuItems" :index="menuItemIndex" v-for="menuItem, menuItemIndex in menuItems" :key="menuItemIndex" :radius="mainCircle.radius" :style="childCircleBaseStyles" />
 			<svg class="lines" xmlns="http://www.w3.org/2000/svg">
 				<defs>
 					<filter id="dropshadow" height="130%">
-						<feGaussianBlur  stdDeviation="3" /> <!-- stdDeviation is how much to blur -->
-						<feOffset dx="2" dy="2" result="offsetblur"/> <!-- how much to offset -->
+						<feGaussianBlur  stdDeviation="3" />
+						<feOffset dx="2" dy="2" result="offsetblur"/>
 
 						<feComponentTransfer>
-							<feFuncA type="linear" slope="1"/> <!-- slope is the opacity of the shadow -->
+							<feFuncA type="linear" slope="1"/>
 						</feComponentTransfer>
 
 						<feMerge>
-							<feMergeNode/> <!-- this contains the offset blurred image -->
-							<feMergeNode in="SourceGraphic"/> <!-- this contains the element that the filter is applied to -->
+							<feMergeNode/>
+							<feMergeNode in="SourceGraphic"/>
 						</feMerge>
 					</filter>
 				</defs>
-				<connector
+				<mz-circle-menu-connector
 					:content="menuItems"
 					:index="menuItemIndex"
 					v-for="menuItem, menuItemIndex in menuItems"
@@ -53,13 +53,13 @@ import {
 	spring,
 	chain
 } from 'popmotion'
-import item from '@/components/item.vue'
-import connector from '@/components/connector.vue'
+import mzCircleMenuItem from '@/components/mzCircleMenuItem.vue'
+import mzCircleMenuConnector from '@/components/mzCircleMenuConnector.vue'
 
 export default {
 	components: {
-		item,
-		connector
+		mzCircleMenuItem,
+		mzCircleMenuConnector
 	},
 	data() {
 		return {

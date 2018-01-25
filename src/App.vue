@@ -1,12 +1,12 @@
 <template>
 <div id="app" :style="{ background: bg }">
 	<img src="./assets/logo.png">
-	<HelloWorld/>
+	<mz-circle-menu/>
 </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld'
+import mzCircleMenu from './components/mzCircleMenu'
 
 export default {
 	data () {
@@ -15,7 +15,7 @@ export default {
 		}
 	},
 	components: {
-		HelloWorld
+		mzCircleMenu
 	},
 	methods: {
 		getNum () {

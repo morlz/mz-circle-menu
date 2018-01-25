@@ -74,15 +74,20 @@ export default {
 		linePath () {
 			return 	`M${this.cords.from.base.x} ${this.cords.from.base.y}` +
 
+					/* relative */
+
 					`C ${this.cords.from.base.x + this.cords.from.bias.x} ` +
 					`${this.cords.from.base.y + -this.cords.from.bias.y}, ` +
 					`${this.cords.to.base.x + this.cords.to.bias.x} ` +
 					`${this.cords.to.base.y + -this.cords.to.bias.y}, ` +
-					/*
+
+					/* absolute
+
 					`C ${ this.cords.from.bias.x} ` +
 					`${ -this.cords.from.bias.y}, ` +
 					`${ this.cords.to.bias.x} ` +
 					`${ -this.cords.to.bias.y}, ` +
+
 					*/
 					`${this.cords.to.base.x} ${this.cords.to.base.y}`
 		}
@@ -94,15 +99,15 @@ export default {
 				to: { x: Math.random(), y: Math.random() * 2 - 1 }
 			}
 
-			tween({ from: this.shift.from, to: to.from, duration: 0x1388, ease: easing.easeInOut }).start(v => this.shift.from = v)
-			tween({ from: this.shift.to, to: to.to, duration: 0x1388, ease: easing.easeInOut }).start(v => this.shift.to = v)
+			tween({ from: this.shift.from, to: to.from, duration: 0x1488, ease: easing.easeInOut }).start(v => this.shift.from = v)
+			tween({ from: this.shift.to, to: to.to, duration: 0x1488, ease: easing.easeInOut }).start(v => this.shift.to = v)
 		}
 	},
 	mounted () {
 		this.updateShift()
 		setTimeout(a => {
-			this.updateShiftInterval = setInterval(a => this.updateShift(), 0x1388)//0x9C4
-		}, 0x1388 / this.content.length * this.index)
+			this.updateShiftInterval = setInterval(a => this.updateShift(), 0x1488)//0x9C4
+		}, 0x1488 / this.content.length * this.index)
 
 	},
 	beforeDestroy () {
