@@ -1,7 +1,7 @@
 <template>
 <div id="app" :style="{ background: bg }">
 	<img src="./assets/logo.png">
-	<mz-circle-menu/>
+	<mz-circle-menu :items="menuItems" top="30px" left="30px" />
 </div>
 </template>
 
@@ -9,9 +9,60 @@
 import mzCircleMenu from './components/mzCircleMenu'
 
 export default {
+	name: "App",
 	data () {
 		return {
-			bg: 'rgb(0, 0, 0)'
+			bg: 'rgb(0, 0, 0)',
+			menuItems: [{
+					name: 'Home'
+				},
+				{
+					name: 'Navalny'
+				},
+				{
+					name: 'Puten',
+					childs: [
+						{
+							name: "Nalog",
+							childs: [
+								{
+									name: "DACHA",
+									childs: [
+										{
+											name: "KREML",
+											childs: [
+												{ name: "RKN" },
+												{ name: "MVD" },
+												{ name: "SBER" },
+												{ name: "USA" },
+											]
+										},
+										{ name: "Krem" },
+									]
+							 	},
+								{ name: "Armiya" },
+								{ name: "FSB" },
+								{ name: "MVD" },
+							]
+						},
+						{ name: "Krem" },
+					]
+				},
+				{
+					name: 'Medvedev ZHULIK',
+					childs: [
+						{
+							name: "Nalog",
+							childs: [
+								{ name: "Bagam,i" },
+								{ name: "YAHTA" },
+								{ name: "YAHTA2" },
+							]
+						},
+						{ name: "srok" },
+					]
+				},
+			],
 		}
 	},
 	components: {

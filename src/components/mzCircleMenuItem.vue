@@ -1,6 +1,8 @@
 <template>
-	<div class="childCircle" :style="childCircleBaseStyles" @mouseover="selfHoverIn" @mouseleave="selfHoverOut">
-		{{ content[index].name }}
+	<div class="childCircle" :style="childCircleBaseStyles" @mouseover="selfHoverIn" @mouseleave="selfHoverOut" :class="{ childCircleEnd: !withChilds, side }">
+		<slot>
+			{{ content[index].name }}
+		</slot>
 	</div>
 </template>
 
@@ -8,7 +10,29 @@
 import { tween, easing, delay, spring, chain } from 'popmotion'
 
 export default {
-	props: ['content', 'index', 'radius'],
+	name: "mz-circle-menu-item",
+	props: {
+		content: {
+			type: Array,
+			required: true
+		},
+		index: {
+			type: Number,
+			required: true
+		},
+		radius: {
+			type: Object,
+			required: true
+		},
+		withChilds: {
+			type: Boolean,
+			default: a => false
+		},
+		side: {
+			type: Boolean,
+			default: a => false
+		}
+	},
 	data () {
 		return {
 			selfBiasUpdateInterval: false,
@@ -49,21 +73,25 @@ export default {
 
 <style lang="less">
 .childCircle {
+	pointer-events: all;
 	position: absolute;
-	//top: 50%;
-	//left: 50%;
 	width: 100px;
 	margin: -50px 0 0 -50px;
 	line-height: 100px;
 	height: 100px;
+	user-select: none;
+	transition: opacity 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+.childCircleEnd {
 	border-radius: 100%;
 	background: #fff;
-	user-select: none;
 	box-shadow: 0 2px 6px 1px rgba(0, 0, 0, 0.2);
-	transition: box-shadow 0.3s ease-in-out;
 	&:hover {
 		box-shadow: 0 2px 7px 2px rgba(0, 0, 0, 0.3);
 		cursor: pointer;
 	}
+}
+.side {
+	opacity: 0.3;
 }
 </style>

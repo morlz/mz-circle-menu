@@ -1,12 +1,30 @@
 <template>
-	<path :d="linePath" stroke="white" fill="transparent" class="line" />
+	<path :d="linePath" stroke="white" fill="transparent" class="line" :class="{ side }" />
 </template>
 
 <script>
 import { tween, easing, delay, spring, chain } from 'popmotion'
 
 export default {
-	props: ['content', 'index', 'radius'],
+	name: "mzCircleMenuConnector",
+	props: {
+		content: {
+			type: Array,
+			required: true
+		},
+		index: {
+			type: Number,
+			required: true
+		},
+		radius: {
+			type: Object,
+			required: true
+		},
+		side: {
+			type: Boolean,
+			default: a => false
+		}
+	},
 	data () {
 		return {
 			updateShiftInterval: false,
@@ -122,5 +140,9 @@ export default {
 	stroke-width: 5px;
 	//filter: drop-shadow( -5px -5px 30px #fff );
 	filter:url(#dropshadow);
+	transition: opacity 0.3s ease-in-out;
+}
+.side {
+	opacity: 0.3;
 }
 </style>

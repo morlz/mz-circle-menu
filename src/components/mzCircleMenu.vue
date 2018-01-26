@@ -1,22 +1,42 @@
 <template>
-<div class="menuWrapper">
+<div class="menuWrapper" :style="mainStyles">
 	<div class="mainButton" @click="mainCircleClickHandler">
-		<svg class="menu">
-			<path d="M10 15 40 15" class="menuL l1" />
-			<path d="M10 25 40 25" class="menuL l1" />
-			<path d="M10 35 40 35" class="menuL l1" />
-		</svg>
-		<div class="mainButtonVisible" :class="{ mainButtonActive: open }">
-			<svg class="x">
-				<path d="M15 15 35 35" class="xl x1" />
-				<path d="M15 35 35 15" class="xl x2" />
+		<slot name="button" :open="open">
+			<svg class="menu">
+				<path d="M10 15 40 15" class="menuL l1" />
+				<path d="M10 25 40 25" class="menuL l1" />
+				<path d="M10 35 40 35" class="menuL l1" />
 			</svg>
+		</slot>
+		<div class="mainButtonVisible" :class="{ mainButtonActive: open }">
+			<slot name="buttonX">
+				<svg class="x">
+					<path d="M15 15 35 35" class="xl x1" />
+					<path d="M15 35 35 15" class="xl x2" />
+				</svg>
+			</slot>
 		</div>
 	</div>
 	<div class="mainAction">
 		<div class="shadowCiecle" :style="shadowCiecleStyles"/>
 		<div class="mainCircle" :style="mainCircleStyles">
-			<mz-circle-menu-item :content="menuItems" :index="menuItemIndex" v-for="menuItem, menuItemIndex in menuItems" :key="menuItemIndex" :radius="mainCircle.radius" :style="childCircleBaseStyles" />
+			<mz-circle-menu-item
+				v-for="menuItem, menuItemIndex in menuItems"
+				:content="menuItems"
+				:index="menuItemIndex"
+				:key="menuItemIndex"
+				:radius="mainCircle.radius"
+				:style="childCircleBaseStyles"
+				:with-childs="!!menuItem.childs"
+				:side="openedChildIndex != -1 && openedChildIndex != menuItemIndex"
+				>
+				<mz-circle-menu v-if="menuItem.childs" :items="menuItem.childs" top="50%" left="50%" with-margin ref="childs">
+					<div class="childName" slot="button" :style="{ opacity: +!props.open }" slot-scope="props">
+						{{ menuItem.name }}
+					</div>
+				</mz-circle-menu>
+			</mz-circle-menu-item>
+
 			<svg class="lines" xmlns="http://www.w3.org/2000/svg">
 				<defs>
 					<filter id="dropshadow" height="130%">
@@ -34,11 +54,12 @@
 					</filter>
 				</defs>
 				<mz-circle-menu-connector
+					v-for="menuItem, menuItemIndex in menuItems"
 					:content="menuItems"
 					:index="menuItemIndex"
-					v-for="menuItem, menuItemIndex in menuItems"
 					:key="menuItemIndex"
-					:radius="mainCircle.radius" />
+					:radius="mainCircle.radius"
+					:side="openedChildIndex != -1 && openedChildIndex != menuItemIndex" />
 			</svg>
 		</div>
 	</div>
@@ -55,41 +76,74 @@ import {
 } from 'popmotion'
 import mzCircleMenuItem from '@/components/mzCircleMenuItem.vue'
 import mzCircleMenuConnector from '@/components/mzCircleMenuConnector.vue'
+import mzCircleMenu from '@/components/mzCircleMenu.vue'
 
 export default {
+	name: 'mz-circle-menu',
+	props: {
+		items: {
+			type: Array,
+			required: true
+		},
+		top: {
+			type: String,
+			default: a => "0"
+		},
+		left: {
+			type: String,
+			default: a => "0"
+		},
+		withMargin: {
+			type: Boolean,
+			default: a => false
+		}
+	},
 	components: {
 		mzCircleMenuItem,
-		mzCircleMenuConnector
+		mzCircleMenuConnector,
+		mzCircleMenu
 	},
 	data() {
 		return {
 			open: false,
-			menuItems: [{
-					name: 'Home'
-				},
-				{
-					name: 'Navalny'
-				},
-				{
-					name: 'Politics'
-				},
-				{
-					name: 'Politics'
-				},
-			],
 			mainCircle: {
 				radius: {
 					inner: 0,
-					outer: 30
+					outer: 50
 				},
 				shadow: {
 					inner: 300,
 					outer: 5
 				}
+			},
+			openedChildRefIndex: -1
+		}
+	},
+	watch: {
+		open (n) {
+			if (n) {
+				this.$emit('open')
+				this.mainCircleOpen()
+			}
+
+			if (!n) {
+				this.$emit('close')
+				this.mainCircleClose()
 			}
 		}
 	},
 	computed: {
+		openedChildIndex () {
+			if (this.openedChildRefIndex == -1) return -1
+			let withChildsCount = 0
+			for (var i = 0; i < this.items.length; i++) {
+				if (this.items[i].childs) withChildsCount++
+				if (withChildsCount == this.openedChildRefIndex + 1) {
+					return i
+				}
+			}
+			return -1
+		},
 		mainCircleStyles() {
 			let r = this.mainCircle.radius.outer * 2 + 'px'
 			let bias = -(this.mainCircle.radius.outer) + 'px'
@@ -115,13 +169,40 @@ export default {
 		},
 		shadowCiecleStyles () {
 			return {
-				'box-shadow': `0 0 ${this.mainCircle.radius.inner * 2}px ${this.mainCircle.radius.inner}px rgba(0, 0, 0, 1)`
+				//'box-shadow': `0 0 ${this.mainCircle.radius.inner * 2}px ${this.mainCircle.radius.inner}px rgba(0, 0, 0, 1)`
+			}
+		},
+		menuItems () {
+			return this.items
+		},
+		mainStyles () {
+			return {
+				top: this.top,
+				left: this.left,
+				'margin-top': this.withMargin ? "-25px" : null,
+				'margin-left': this.withMargin ? "-25px" : null,
 			}
 		}
 	},
 	methods: {
+		checkOpenedChilds (index) {
+			return a => {
+				if (this.$refs.childs)
+					this.openedChildRefIndex = this.$refs.childs.findIndex(vm => vm.open)
+				else
+					this.openedChildRefIndex = -1
+
+				if (this.$refs.childs)
+					this.$refs.childs.map((vm, vmIndex) => vmIndex != index ? vm.$emit('wannaClose') : null)
+			}
+		},
+		closeEventHandler () {
+			if (this.$refs.childs)
+				this.$refs.childs.map(vm => vm.$emit('wannaClose'))
+
+			this.open = false
+		},
 		mainCircleClickHandler() {
-			this.open ? this.mainCircleClose() : this.mainCircleOpen()
 			this.open = !this.open
 		},
 		mainCircleOpen() {
@@ -131,7 +212,6 @@ export default {
 				duration: 300,
 				ease: easing.easeInOut
 			}).start(v => this.mainCircle.shadow.outer = v)
-
 
 			delay(150).start({
 				complete: e => tween({
@@ -145,18 +225,16 @@ export default {
 			delay(300).start({
 				complete: e => tween({
 					from: this.mainCircle.shadow.outer,
-					to: 5,
+					to: 0,
 					duration: 200,
 					ease: easing.easeInOut
 				}).start(v => this.mainCircle.shadow.outer = v)
 			})
 
-			//inner 350 950
-
 			delay(350).start({
 				complete: a => tween({
 					from: this.mainCircle.radius.inner,
-					to: 295,
+					to: 300,
 					duration: 500,
 					//ease: easing.easeInOut
 				}).start(v => this.mainCircle.radius.inner = v)
@@ -165,7 +243,7 @@ export default {
 			delay(650).start({
 				complete: a => tween({
 					from: this.mainCircle.shadow.inner,
-					to: 5,
+					to: 0,
 					duration: 300,
 					//ease: easing.easeInOut
 				}).start(v => this.mainCircle.shadow.inner = v)
@@ -215,6 +293,18 @@ export default {
 				}).start(v => this.mainCircle.shadow.outer = v)
 			})
 		}
+	},
+	mounted () {
+		this.$on('wannaClose', this.closeEventHandler)
+
+		if (this.$refs.childs)
+			this.$refs.childs.map((vm, index) => vm.$on(['open', 'close'], this.checkOpenedChilds(index)))
+	},
+	beforeDestroy () {
+		this.$off('wannaClose', this.closeEventHandler)
+
+		if (this.$refs.childs)
+			this.$refs.childs.map((vm, index) => vm.$off(['open', 'close'], this.checkOpenedChilds(index)))
 	}
 }
 </script>
@@ -223,8 +313,6 @@ export default {
 .menuWrapper {
     width: 50px;
     position: absolute;
-    top: 30px;
-    left: 30px;
     .mainButton {
         position: absolute;
         width: 50px;
@@ -232,6 +320,9 @@ export default {
         line-height: 50px;
         z-index: 25;
         cursor: pointer;
+		display: grid;
+		align-items: center;
+		justify-content: center;
 		.x {
 			width: 100%;
 			height: 100%;
@@ -247,6 +338,11 @@ export default {
 				stroke: #c4c4c4;
 				stroke-width: 6px;
 			}
+		}
+
+		.childName {
+			line-height: 18px;
+			transition: all 0.3s ease-in-out;
 		}
     }
 
@@ -298,7 +394,9 @@ export default {
             width: 50px;
             height: 50px;
             border-radius: 100%;
+			pointer-events: none;
             .lines {
+				pointer-events: none;
                 width: 100%;
                 height: 100%;
             }
