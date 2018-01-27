@@ -16,7 +16,7 @@ export default {
 			type: Number,
 			required: true
 		},
-		radius: {
+		r: {
 			type: Object,
 			required: true
 		},
@@ -41,6 +41,10 @@ export default {
 		}
 	},
 	computed: {
+		radius () {
+			let { inner, outer } = this.r
+			return { inner: inner * 1.2, outer }
+		},
 		circleBasePosition () {
 			let	r = this.radius.outer,
 				angleOne = (Math.PI / 2) / this.content.length,
@@ -126,7 +130,6 @@ export default {
 		setTimeout(a => {
 			this.updateShiftInterval = setInterval(a => this.updateShift(), 0x1488)//0x9C4
 		}, 0x1488 / this.content.length * this.index)
-
 	},
 	beforeDestroy () {
 		if (this.updateShiftInterval)

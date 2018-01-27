@@ -1,42 +1,8 @@
 <template>
 <div class="menuWrapper" :style="mainStyles">
-	<div class="mainButton" @click="mainCircleClickHandler">
-		<slot name="button" :open="open">
-			<svg class="menu">
-				<path d="M10 15 40 15" class="menuL l1" />
-				<path d="M10 25 40 25" class="menuL l1" />
-				<path d="M10 35 40 35" class="menuL l1" />
-			</svg>
-		</slot>
-		<div class="mainButtonVisible" :class="{ mainButtonActive: open }">
-			<slot name="buttonX">
-				<svg class="x">
-					<path d="M15 15 35 35" class="xl x1" />
-					<path d="M15 35 35 15" class="xl x2" />
-				</svg>
-			</slot>
-		</div>
-	</div>
 	<div class="mainAction">
 		<div class="shadowCiecle" :style="shadowCiecleStyles"/>
 		<div class="mainCircle" :style="mainCircleStyles">
-			<mz-circle-menu-item
-				v-for="menuItem, menuItemIndex in menuItems"
-				:content="menuItems"
-				:index="menuItemIndex"
-				:key="menuItemIndex"
-				:radius="mainCircle.radius"
-				:style="childCircleBaseStyles"
-				:with-childs="!!menuItem.childs"
-				:side="openedChildIndex != -1 && openedChildIndex != menuItemIndex"
-				>
-				<mz-circle-menu v-if="menuItem.childs" :items="menuItem.childs" top="50%" left="50%" with-margin ref="childs">
-					<div class="childName" slot="button" :style="{ opacity: +!props.open }" slot-scope="props">
-						{{ menuItem.name }}
-					</div>
-				</mz-circle-menu>
-			</mz-circle-menu-item>
-
 			<svg class="lines" xmlns="http://www.w3.org/2000/svg">
 				<defs>
 					<filter id="dropshadow" height="130%">
@@ -58,9 +24,42 @@
 					:content="menuItems"
 					:index="menuItemIndex"
 					:key="menuItemIndex"
-					:radius="mainCircle.radius"
+					:r="mainCircle.radius"
 					:side="openedChildIndex != -1 && openedChildIndex != menuItemIndex" />
 			</svg>
+			<mz-circle-menu-item
+				v-for="menuItem, menuItemIndex in menuItems"
+				:content="menuItems"
+				:index="menuItemIndex"
+				:key="menuItemIndex"
+				:radius="mainCircle.radius"
+				:style="childCircleBaseStyles"
+				:with-childs="!!menuItem.childs"
+				:side="openedChildIndex != -1 && openedChildIndex != menuItemIndex"
+				>
+				<mz-circle-menu v-if="menuItem.childs" :items="menuItem.childs" top="50%" left="50%" with-margin ref="childs">
+					<div class="childName" slot="button" :style="{ opacity: +!props.open }" slot-scope="props">
+						{{ menuItem.name }}
+					</div>
+				</mz-circle-menu>
+			</mz-circle-menu-item>
+		</div>
+	</div>
+	<div class="mainButton" @click="mainCircleClickHandler">
+		<slot name="button" :open="open">
+			<svg class="menu">
+				<path d="M10 15 40 15" class="menuL l1" />
+				<path d="M10 25 40 25" class="menuL l1" />
+				<path d="M10 35 40 35" class="menuL l1" />
+			</svg>
+		</slot>
+		<div class="mainButtonVisible" :class="{ mainButtonActive: open }">
+			<slot name="buttonX">
+				<svg class="x">
+					<path d="M15 15 35 35" class="xl x1" />
+					<path d="M15 35 35 15" class="xl x2" />
+				</svg>
+			</slot>
 		</div>
 	</div>
 </div>
@@ -187,14 +186,20 @@ export default {
 	methods: {
 		checkOpenedChilds (index) {
 			return a => {
-				if (this.$refs.childs)
-					this.openedChildRefIndex = this.$refs.childs.findIndex(vm => vm.open)
-				else
-					this.openedChildRefIndex = -1
+				this.checkCurrentIndex(index)
 
 				if (this.$refs.childs)
 					this.$refs.childs.map((vm, vmIndex) => vmIndex != index ? vm.$emit('wannaClose') : null)
 			}
+		},
+		checkClosedChilds (index) {
+			return a => this.checkCurrentIndex(index)
+		},
+		checkCurrentIndex (index) {
+			if (this.$refs.childs)
+				this.openedChildRefIndex = this.$refs.childs.findIndex(vm => vm.open)
+			else
+				this.openedChildRefIndex = -1
 		},
 		closeEventHandler () {
 			if (this.$refs.childs)
@@ -298,13 +303,19 @@ export default {
 		this.$on('wannaClose', this.closeEventHandler)
 
 		if (this.$refs.childs)
-			this.$refs.childs.map((vm, index) => vm.$on(['open', 'close'], this.checkOpenedChilds(index)))
+			this.$refs.childs.map((vm, index) => {
+				vm.$on(['open'], this.checkOpenedChilds(index))
+				vm.$on(['close'], this.checkClosedChilds(index))
+			})
 	},
 	beforeDestroy () {
 		this.$off('wannaClose', this.closeEventHandler)
 
 		if (this.$refs.childs)
-			this.$refs.childs.map((vm, index) => vm.$off(['open', 'close'], this.checkOpenedChilds(index)))
+			this.$refs.childs.map((vm, index) => {
+				vm.$off(['open'], this.checkOpenedChilds(index))
+				vm.$off(['close'], this.checkClosedChilds(index))
+			})
 	}
 }
 </script>
@@ -313,6 +324,7 @@ export default {
 .menuWrapper {
     width: 50px;
     position: absolute;
+	z-index: 20;
     .mainButton {
         position: absolute;
         width: 50px;
@@ -396,9 +408,13 @@ export default {
             border-radius: 100%;
 			pointer-events: none;
             .lines {
+				z-index: 15;
+				position: absolute;
 				pointer-events: none;
-                width: 100%;
-                height: 100%;
+                width: 120%;
+                height: 120%;
+				top:-10%;
+				left:-10%;
             }
         }
     }

@@ -62,10 +62,10 @@ export default {
 	},
 	methods: {
 		selfHoverIn () {
-			console.log('in');
+			//console.log('in');
 		},
 		selfHoverOut () {
-			console.log('out');
+			//console.log('out');
 		}
 	}
 }
@@ -81,6 +81,7 @@ export default {
 	height: 100px;
 	user-select: none;
 	transition: opacity 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+	z-index: 25;
 }
 .childCircleEnd {
 	border-radius: 100%;
