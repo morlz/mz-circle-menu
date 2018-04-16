@@ -40,7 +40,14 @@ export default {
 										{ name: "Krem" },
 									]
 							 	},
-								{ name: "Armiya" },
+								{
+									name: "Armiya",
+									childs: [
+										{ name: 'Siriya' },
+										{ name: 'Ukraina' },
+										{ name: 'Usa' }
+									]
+								 },
 								{ name: "FSB" },
 								{ name: "MVD" },
 							]
